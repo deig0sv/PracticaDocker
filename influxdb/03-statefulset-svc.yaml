@@ -1,0 +1,122 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+    labels:
+        app: influxdb
+    name: influxdb
+    namespace: devops
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: influxdb
+    serviceName: influxdb
+    template:
+        metadata:
+            labels:
+                app: influxdb
+        spec:
+            containers:
+              - name: influxdb
+                image: influxdb:2.7.5
+                ports:
+                  - containerPort: 8086
+                    name: influxdb
+                env:
+                  - name: DOCKER_INFLUXDB_INIT_MODE
+                    valueFrom:
+                      configMapKeyRef:
+                        name: influxdb-config
+                        key: DOCKER_INFLUXDB_INIT_MODE
+                  - name: DOCKER_INFLUXDB_INIT_USERNAME
+                    value: adminDev0ps
+                    # valueFrom:
+                      # secretKeyRef:
+                        # name: influxdb-auth
+                        # key: admin-user
+                  - name: DOCKER_INFLUXDB_INIT_PASSWORD
+                    value: pasInfx2ydgasdy#24.
+                    # valueFrom:
+                      # secretKeyRef:
+                        # name: influxdb-auth
+                        # key: admin-password
+                  - name: DOCKER_INFLUXDB_INIT_ORG
+                    valueFrom:
+                      configMapKeyRef:
+                        name: influxdb-config
+                        key: DOCKER_INFLUXDB_INIT_ORG
+                  - name: DOCKER_INFLUXDB_INIT_BUCKET
+                    valueFrom:
+                      configMapKeyRef:
+                        name: influxdb-config
+                        key: DOCKER_INFLUXDB_INIT_BUCKET
+                  - name: DOCKER_INFLUXDB_INIT_RETENTION
+                    valueFrom:
+                      configMapKeyRef:
+                        name: influxdb-config
+                        key: DOCKER_INFLUXDB_INIT_RETENTION
+                volumeMounts:
+                  - mountPath: /var/lib/influxdb2
+                    name: influx-data
+                  - mountPath: /etc/influxdb2
+                    name: influx-config
+                resources:
+                  requests:
+                    cpu: 200m
+                    memory: 500Mi
+                  limits:
+                    cpu: 500m
+                    memory: 1Gi
+                livenessProbe:
+                  httpGet:
+                    path: "/health"
+                    port: http
+                    scheme: "HTTP"
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+                readinessProbe:
+                  httpGet:
+                    path: "/health"
+                    port: http
+                    scheme: "HTTP"
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  successThreshold: 1
+                  failureThreshold: 3
+    volumeClaimTemplates:
+      - metadata:
+            name: influx-data
+            namespace: devops
+        spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+                requests:
+                    storage: 1Gi
+      - metadata:
+            name: influx-config
+            namespace: devops
+        spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+                requests:
+                    storage: 200Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: influxdb
+    namespace: devops
+spec:
+    ports:
+      - name: influxdb
+        port: 8086
+        targetPort: 8086
+    selector:
+        app: influxdb
+    type: ClusterIP
