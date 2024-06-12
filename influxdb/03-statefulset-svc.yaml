@@ -21,8 +21,8 @@ spec:
               - name: influxdb
                 image: influxdb:2.7.5
                 ports:
-                  - containerPort: 8086
-                    name: influxdb
+                  - name: influxdb-port
+                    containerPort: 8086
                 env:
                   - name: DOCKER_INFLUXDB_INIT_MODE
                     valueFrom:
@@ -68,23 +68,27 @@ spec:
                   limits:
                     cpu: 500m
                     memory: 1Gi
+                startupProbe:
+                  httpGet:
+                    path: /health
+                    port: influxdb-port
+                  failureThreshold: 12
+                  periodSeconds: 10
                 livenessProbe:
                   httpGet:
-                    path: "/health"
-                    port: http
+                    path: /health
+                    port: influxdb-port
                     scheme: "HTTP"
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 3
+                  periodSeconds: 15
+                  timeoutSeconds: 2
+                  failureThreshold: 2
                 readinessProbe:
                   httpGet:
-                    path: "/health"
-                    port: http
+                    path: /health
+                    port: influxdb-port
                     scheme: "HTTP"
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
+                  periodSeconds: 15
+                  timeoutSeconds: 2
                   successThreshold: 1
                   failureThreshold: 3
     volumeClaimTemplates:
