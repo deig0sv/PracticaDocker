@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  jenkins:
+    #devopsadmin
+    image: jenkins/jenkins:2.414.3-lts-jdk11
+    container_name: jenkins
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    networks:
+      - devops_network
+
+  influxdb:
+    image: influxdb:1.8.10
+    container_name: influxdb
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+    environment:
+      - INFLUXDB_DB=mydb
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=admin_password
+      - INFLUXDB_USER=user
+      - INFLUXDB_USER_PASSWORD=user_password
+    ports:
+      - "8086:8086"
+    networks:
+      - devops_network
+
+  chronograf:
+    image: chronograf:1.8.10
+    container_name: chronograf
+    depends_on:
+     - influxdb
+    ports:
+      - "8888:8888"
+    volumes:
+      - chronograf_data:/var/lib/chronograf
+    environment:
+      - influxdb-url=http://influxdb:8086
+    networks:
+      - devops_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin_password
+    ports:
+      - "3000:3000"
+    networks:
+      - devops_network
+
+networks:
+  devops_network:
+    driver: bridge
+
+volumes:
+  jenkins_home:
+  influxdb_data:
+  chronograf_data:
+  grafana_data:

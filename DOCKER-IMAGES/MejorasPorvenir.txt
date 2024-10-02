@@ -1,0 +1,60 @@
+cloc -> cuenta espacios en blanco de un proyecto
+
+DefectDojo -> Centralizar métricas de vulnerabilidades de proyectos
+
+OpenTelemetry -> Observabilidad - Trazas, Métricas, Logs
+OTelCollector -> Collector Observabilidad - Trazas, Métricas, Logs
+
+Sonartype - Nexus -> Repositorio de Artefacts -> Explorar 
+
+bats -> Automaiza y crea pruebas de scripts con bash
+
+trivy -> Analisis de imagenes Docker -> Visualizar de mejor manera el resultado del análisis
+
+
+GitOps -> Explorar
+
+IaC
+	Crossplane
+	Flux
+
+- Automatizacion de creacion de pipelines
+
+- Backstage
+
+- Automatizaciones con Python
+
+- Monitoreo Weblogic
+
+
+
+*Ideas Implementación*
+	*Revisar si es necesario realizar las compilaciones antes del los escaneres
+	Estandarizar los nombres de los stage en todos los pipelines [Checkout->QualityScan(sonarQube)->VulnerabilityScan(Fortify)->Build->Deploy->ArtifactStore->PostActions]
+	
+	*Notificaciones Jenkins*
+		- Resumen
+		- Mensajes -> Indicar errores comunes
+		- Artefacto -> Indicar nombre del artefacto construido y ubicación
+	
+	*Observalidad*
+		- Tiempos pipelines - tiempos por stage, registro en InfluxDB
+		- Vulnerabilidades - Dashboard q tenga todos los proyectos DefectDojo
+
+	*Automatización*
+	*Una vez estandarizado, pensar en la posibilidad de crear un pipeline q cree las plantillas de nuevos pipelines por tecnología y versionarlos en GitHub automáticamente con previa autorización humana.
+		- Expresion Regular para validar nombres de repos.
+		- Java [Gradle/Maven]
+		- NodeJS [Angular/React]
+	
+	*Como hacer que la descarg de dependencias sean reutilizables, para no tener q ir a descargar desde Artifactory y/o Internet
+	*Revision de config Artifactory para configuracion de dependencias, para que todos los proyectos descarguen dependencias de Artifactory y no de Internet
+
+
+
+Api Management muuuy lento, pq despliega todo, debería poderse desplegar reglas específicas o todo
+versiones node ^ trae versiones más actuales
+artifactory caido
+hay pipelines q no tienen artefactos sino q son config, ingress, api management, no deberían tener flujo con artefactos y scaner
+
+	

@@ -1,0 +1,43 @@
+minikube start --nodes 2 -p labhpa
+minikube status -p labhpa
+
+kubectl apply -f https://k8s.io/examples/application/php-apache.yaml
+o
+kubectl apply -f php-apache.yaml
+
+kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
+o
+kubectl apply -f hpa-php.yaml
+
+Instalar Metrics Server
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+o
+kubectl apply -f components.yaml
+
+kubectl top nodes
+kubectl top podes
+
+kubectl get apiservices | grep metrics
+
+
+# Run this in a separate terminal
+# so that the load generation continues and you can carry on with the rest of the steps
+kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://php-apache; done"
+
+# type Ctrl+C to end the watch when you're ready
+kubectl get hpa php-apache --watch
+
+kubectl get deployment php-apache
+
+
+
+REFERENCIAS
+https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+https://github.com/kubernetes-sigs/metrics-server
+https://signoz.io/blog/kubernetes-metrics-server/
+https://www.fearofoblivion.com/getting-started-with-k8s-hpa-and-aks-cluster-autoscaler
+
+
+
+
